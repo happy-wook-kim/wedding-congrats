@@ -7,7 +7,7 @@
 <title>긴급 속보 · 장인엽 ♥ 손정은</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bagel+Fat+One&family=Gothic+A1:wght@400;700;900&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bagel+Fat+One&family=Gothic+A1:wght@400;700;900&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@300;400&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
    결혼 축하 속보 · 방송 사고 컨셉
@@ -232,7 +232,12 @@ body{
   text-shadow:0 0 20px rgba(255,249,240,.28);
   transform:translateY(-.065em);   /* Bagel Fat One 글자가 박스 아래로 치우쳐 있어 시각중심 보정 */
 }
-.show .btn-ghost{margin-top:clamp(1.6rem,5vw,2.4rem);animation:fadeUp .6s 1.15s both}
+.actions{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:clamp(.6rem,2.5vw,1rem);
+  margin-top:clamp(1.6rem,5vw,2.4rem);
+  animation:fadeUp .6s 1.15s both;
+}
 
 /* ── 회전 이모지 궤도 ───────────────────────────── */
 .orbit{
@@ -285,13 +290,19 @@ body{
 }
 .ticker-label{
   flex:none;display:flex;align-items:center;
-  padding:0 clamp(.7rem,3vw,1.15rem);
+  padding:0 clamp(.8rem,3vw,1.25rem);
   background:var(--ink);color:var(--volt);
-  font-family:var(--body);font-weight:900;
-  font-size:clamp(12px,3.2vw,16px);letter-spacing:.12em;
-  border-right:2px solid rgba(255,255,255,.42);
+  font-family:"Black Han Sans",var(--body);font-weight:400;
+  font-size:clamp(15px,3.8vw,20px);letter-spacing:.04em;
 }
-.ticker-view{flex:1;display:flex;align-items:center;overflow:hidden}
+/* 글자가 라벨에 딱 붙거나 오른쪽에서 뚝 잘리지 않도록 양끝을 페이드 처리 */
+.ticker-view{position:relative;flex:1;display:flex;align-items:center;overflow:hidden}
+.ticker-view::before,.ticker-view::after{
+  content:"";position:absolute;top:0;bottom:0;z-index:2;pointer-events:none;
+  width:clamp(18px,4vw,34px);
+}
+.ticker-view::before{left:0;background:linear-gradient(90deg,var(--siren),rgba(255,30,86,0))}
+.ticker-view::after{right:0;background:linear-gradient(270deg,var(--siren),rgba(255,30,86,0))}
 .ticker-track{
   display:flex;flex:none;white-space:nowrap;
   font-weight:900;font-size:clamp(13px,3.3vw,17px);letter-spacing:.01em;
@@ -310,8 +321,6 @@ body{
 
 /* ── 스크롤 유도 ────────────────────────────────── */
 .scrolldown{
-  position:absolute;left:50%;transform:translateX(-50%);z-index:38;
-  bottom:calc(var(--tick-h) + clamp(.5rem,2.2vw,.9rem));
   display:inline-flex;align-items:center;gap:.55em;
   padding:.6em 1.35em;border-radius:999px;
   background:rgba(7,5,15,.7);border:2px solid var(--volt);
@@ -332,7 +341,7 @@ body{
   0%,100%{transform:translateY(-1px) rotate(45deg)}
   50%{transform:translateY(4px) rotate(45deg)}
 }
-.scrolldown:hover{background:var(--volt);color:var(--ink);transform:translateX(-50%) translateY(-2px)}
+.scrolldown:hover{background:var(--volt);color:var(--ink);transform:translateY(-2px)}
 .scrolldown:focus-visible{outline:3px solid var(--cream);outline-offset:4px}
 
 /* ── 청첩장 섹션 ────────────────────────────────── */
@@ -370,8 +379,8 @@ body{
 
 .way-head{
   margin:0 0 clamp(1.4rem,5vw,2rem);
-  font-family:"Gothic A1",sans-serif;font-size:clamp(10px,2.7vw,12px);
-  letter-spacing:.1em;color:var(--paper-mute);
+  font-family:"IBM Plex Sans KR",sans-serif;font-size:clamp(10px,2.7vw,12px);
+  font-weight:600;letter-spacing:.1em;color:var(--paper-mute);
 }
 /* 약도: 좁은 화면에서는 가로 스크롤 */
 .mapwrap{
@@ -379,7 +388,7 @@ body{
   margin:0 0 clamp(1.6rem,5vw,2.3rem);
 }
 .map{display:block;width:100%;min-width:600px;height:auto;color:var(--paper-ink)}
-.map text{font-family:"Gothic A1",sans-serif;fill:currentColor}
+.map text{font-family:"IBM Plex Sans KR",sans-serif;fill:currentColor}
 .map .panel{fill:#efece3;stroke:#dfd9cd;stroke-width:1}
 .map .road{stroke:currentColor;fill:none;stroke-width:4.5;stroke-linecap:round}
 .map .arrow{fill:currentColor}
@@ -402,7 +411,7 @@ body{
 .bdg{
   display:inline-block;vertical-align:baseline;
   padding:.16em .5em;border-radius:.32em;
-  font-family:"Gothic A1",sans-serif;font-weight:700;
+  font-family:"IBM Plex Sans KR",sans-serif;font-weight:600;
   font-size:.92em;line-height:1.45;color:#fff;white-space:nowrap;
 }
 .bdg.sb{background:#f5a200;color:#33291a}    /* 수인분당선 */
@@ -420,18 +429,18 @@ body{
 .transport em{font-style:normal;color:var(--paper-mute);padding:0 .12em}
 .place{margin:0 0 clamp(1.8rem,6vw,2.6rem);line-height:1.9}
 .place b{display:block;font-size:clamp(1rem,3.8vw,1.15rem);margin-bottom:.25em}
-.place span{font-family:"Gothic A1",sans-serif;font-size:clamp(.82rem,3.2vw,.9rem);color:var(--paper-soft)}
+.place span{font-family:"IBM Plex Sans KR",sans-serif;font-size:clamp(.84rem,3.3vw,.93rem);color:var(--paper-soft)}
 .place a{color:var(--paper-soft);text-decoration:none;border-bottom:1px solid var(--paper-rule)}
 
 .transport{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:clamp(1.5rem,5vw,2.2rem) clamp(1.6rem,5vw,2.6rem);
-  text-align:left;font-family:"Gothic A1",sans-serif;
+  text-align:left;font-family:"IBM Plex Sans KR",sans-serif;
 }
 .transport h3{
   margin:0 0 .8em;padding-bottom:.5em;
   border-bottom:1px solid var(--paper-rule);
-  font-size:clamp(10px,2.7vw,12px);font-weight:700;letter-spacing:.08em;color:var(--paper-mute);
+  font-size:clamp(10px,2.7vw,12px);font-weight:600;letter-spacing:.08em;color:var(--paper-mute);
 }
 .transport ul{margin:0;padding:0;list-style:none}
 .transport li{
@@ -441,7 +450,7 @@ body{
 .transport li.sub{padding-left:1.1em;color:var(--paper-mute)}
 .note{
   margin:clamp(1.8rem,6vw,2.6rem) 0 0;
-  font-family:"Gothic A1",sans-serif;font-size:clamp(.78rem,3vw,.85rem);
+  font-family:"IBM Plex Sans KR",sans-serif;font-size:clamp(.8rem,3.1vw,.87rem);
   color:var(--paper-mute);
 }
 
@@ -488,7 +497,12 @@ body{
         <div><dt>일시</dt><dd id="date"></dd></div>
         <div><dt>장소</dt><dd id="venue"></dd></div>
       </dl>
-      <button class="btn btn-ghost" id="again">한 번 더 터뜨리기</button>
+      <div class="actions">
+        <button class="btn btn-ghost" id="again">한 번 더 터뜨리기</button>
+        <a class="scrolldown" id="scrollcue" href="#card">
+          <span>청첩장 보기</span><i></i>
+        </a>
+      </div>
     </section>
   </main>
 
@@ -499,10 +513,6 @@ body{
     <span class="ticker-label">속보</span>
     <div class="ticker-view"><div class="ticker-track" id="tickerTrack"></div></div>
   </footer>
-
-  <a class="scrolldown" id="scrollcue" href="#card" hidden>
-    <span>청첩장 보기</span><i></i>
-  </a>
 
   <div class="flash" id="flash"></div>
   <div class="scan"></div>
@@ -897,7 +907,6 @@ function blowUp(first) {
     $('show').hidden = false;
     $('hudLabel').textContent = '방송 사고';
     $('card').hidden = false;
-    $('scrollcue').hidden = false;
     startReactions();
   }
   renderShow();
