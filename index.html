@@ -353,6 +353,23 @@ body{
   font-family:"Gothic A1",sans-serif;font-size:clamp(10px,2.7vw,12px);
   letter-spacing:.1em;color:var(--paper-mute);
 }
+/* 약도: 좁은 화면에서는 가로 스크롤 */
+.mapwrap{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  margin:0 0 clamp(1.6rem,5vw,2.3rem);
+}
+.map{display:block;width:100%;min-width:540px;height:auto;color:var(--paper-ink)}
+.map text{font-family:"Gothic A1",sans-serif;fill:currentColor}
+.map .lbl{font-size:16px;font-weight:700}
+.map .stn{font-size:15px;fill:var(--paper-soft)}
+.map .hall{font-size:19px;font-weight:700}
+.map .call{font-size:13px;font-weight:700}
+.map .road{stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round}
+.map .side{stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.map .arrow{fill:currentColor}
+.map .stop{fill:var(--paper);stroke:currentColor;stroke-width:2.4}
+.map .slash{stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.map .callout{fill:var(--paper);stroke:currentColor;stroke-width:1.6}
 .place{margin:0 0 clamp(1.8rem,6vw,2.6rem);line-height:1.9}
 .place b{display:block;font-size:clamp(1rem,3.8vw,1.15rem);margin-bottom:.25em}
 .place span{font-family:"Gothic A1",sans-serif;font-size:clamp(.82rem,3.2vw,.9rem);color:var(--paper-soft)}
@@ -476,6 +493,56 @@ body{
     <div class="rule"></div>
 
     <p class="way-head">오시는 길</p>
+
+    <div class="mapwrap">
+      <svg class="map" viewBox="0 0 900 290" role="img" aria-labelledby="maptitle">
+        <title id="maptitle">가천컨벤션센터 약도. 성남대로를 따라 잠실 방향과 분당 방향 사이, 복정역과 모란역 중간의 가천대역에 위치합니다.</title>
+
+        <!-- 성남대로 (동서) -->
+        <path class="road" d="M46 200 H852"/>
+        <polygon class="arrow" points="32,200 50,190 50,210"/>
+        <polygon class="arrow" points="868,200 850,190 850,210"/>
+
+        <!-- 남북 도로 -->
+        <path class="side" d="M178 64 V262"/>
+        <path class="side" d="M318 64 V262"/>
+        <path class="side" d="M605 76 V200"/>
+        <path class="side" d="M775 64 V262"/>
+        <polygon class="arrow" points="178,48 169,68 187,68"/>
+        <polygon class="arrow" points="318,48 309,68 327,68"/>
+        <polygon class="arrow" points="775,48 766,68 784,68"/>
+
+        <!-- 방향 -->
+        <text class="lbl" x="46" y="186">잠실</text>
+        <text class="lbl" x="854" y="186" text-anchor="end">분당</text>
+        <text class="lbl" x="178" y="38" text-anchor="middle">구리</text>
+        <text class="lbl" x="318" y="38" text-anchor="middle">남한산성</text>
+        <text class="lbl" x="775" y="38" text-anchor="middle">광주</text>
+
+        <!-- 전철역 -->
+        <circle class="stop" cx="314" cy="200" r="13"/>
+        <line class="slash" x1="306" y1="208" x2="322" y2="192"/>
+        <text class="stn" x="314" y="230" text-anchor="middle">복정역</text>
+
+        <circle class="stop" cx="457" cy="200" r="13"/>
+        <line class="slash" x1="449" y1="208" x2="465" y2="192"/>
+        <text class="stn" x="457" y="230" text-anchor="middle">가천대역</text>
+
+        <circle class="stop" cx="681" cy="200" r="13"/>
+        <line class="slash" x1="673" y1="208" x2="689" y2="192"/>
+        <text class="stn" x="681" y="230" text-anchor="middle">모란역</text>
+
+        <!-- 예식장 -->
+        <text class="hall" x="464" y="122" text-anchor="middle">가천컨벤션센터</text>
+        <circle class="stop" cx="464" cy="152" r="12"/>
+        <circle cx="464" cy="152" r="7" fill="currentColor"/>
+
+        <!-- 좌회전 안내 -->
+        <path class="callout" d="M28 88 H164 Q170 88 170 94 V130 Q170 136 164 136 H156 L176 193 L140 136 H28 Q22 136 22 130 V94 Q22 88 28 88 Z"/>
+        <text class="call" x="96" y="108" text-anchor="middle">잠실방향</text>
+        <text class="call" x="96" y="126" text-anchor="middle">나와서 좌회전</text>
+      </svg>
+    </div>
 
     <p class="place">
       <b>가천컨벤션센터</b>
