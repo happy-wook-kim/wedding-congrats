@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>긴급 속보 · 결혼합니다</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bagel+Fat+One&family=Gothic+A1:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   결혼 축하 속보 · 방송 사고 컨셉
+   ═══════════════════════════════════════════════════ */
+:root{
+  --ink:#07050f;
+  --ink-2:#150b28;
+  --siren:#ff1e56;
+  --volt:#faff00;
+  --cyber:#00f0ff;
+  --grape:#b026ff;
+  --lime:#4ade80;
+  --cream:#fff9f0;
+  --line:rgba(255,249,240,.2);
+  --hud-h:clamp(34px,7vw,44px);
+  --tick-h:clamp(34px,7vw,44px);
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --body:"Gothic A1",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:var(--body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── 화면 전체(방송 화면) ───────────────────────── */
+#screen{position:fixed;inset:0;overflow:hidden}
+#screen.quake{animation:quake .62s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes quake{
+  10%,90%{transform:translate3d(-3px,1px,0) rotate(-.35deg)}
+  20%,80%{transform:translate3d(6px,-3px,0) rotate(.5deg)}
+  30%,50%,70%{transform:translate3d(-11px,4px,0) rotate(-.7deg)}
+  40%,60%{transform:translate3d(11px,-4px,0) rotate(.7deg)}
+  100%{transform:none}
+}
+
+/* ── 배경 레이어 ────────────────────────────────── */
+.bg{
+  position:absolute;inset:-30%;
+  background:
+    radial-gradient(closest-side,rgba(176,38,255,.55),transparent 70%) 22% 26%/60% 60% no-repeat,
+    radial-gradient(closest-side,rgba(255,30,86,.5),transparent 70%) 78% 22%/55% 55% no-repeat,
+    radial-gradient(closest-side,rgba(0,240,255,.4),transparent 70%) 30% 82%/58% 58% no-repeat,
+    radial-gradient(closest-side,rgba(250,255,0,.28),transparent 70%) 76% 80%/50% 50% no-repeat,
+    var(--ink-2);
+  filter:blur(38px) saturate(140%);
+  animation:swirl 22s linear infinite;
+  opacity:.75;
+}
+@keyframes swirl{to{transform:rotate(360deg) scale(1.08)}}
+.stars{position:absolute;inset:0;opacity:.5;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 82% 12%,#fff,transparent),
+    radial-gradient(1.6px 1.6px at 62% 42%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 28% 66%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 90% 72%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 46% 88%,#fff,transparent),
+    radial-gradient(1.3px 1.3px at 8% 46%,#fff,transparent);
+  animation:twinkle 2.6s steps(2,end) infinite;
+}
+@keyframes twinkle{50%{opacity:.15}}
+.scan{position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.3) 0 1px,transparent 1px 3px);
+  mix-blend-mode:multiply;opacity:.3;
+}
+.vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(closest-side at 50% 45%,transparent 48%,rgba(3,2,8,.7) 100%);
+}
+
+/* ── 상단 방송 HUD ──────────────────────────────── */
+.hud{
+  position:absolute;top:0;left:0;right:0;height:var(--hud-h);z-index:40;
+  display:flex;align-items:center;gap:.7rem;
+  padding:0 clamp(.6rem,3vw,1.4rem);
+  font-family:var(--mono);font-size:clamp(10px,2.6vw,13px);letter-spacing:.14em;
+  background:linear-gradient(180deg,rgba(7,5,15,.92),rgba(7,5,15,.35));
+  border-bottom:1px solid var(--line);
+}
+.live{display:inline-flex;align-items:center;gap:.4em;
+  background:var(--siren);color:#fff;font-weight:700;
+  padding:.3em .6em;border-radius:2px;
+}
+.live i{width:.5em;height:.5em;border-radius:50%;background:#fff;animation:blink 1s steps(2,end) infinite}
+@keyframes blink{50%{opacity:.15}}
+.hud-label{color:var(--volt);font-weight:700}
+.hud-clock{margin-left:auto;color:rgba(255,249,240,.72);font-variant-numeric:tabular-nums}
+
+/* ── 무대 ───────────────────────────────────────── */
+.stage{
+  position:absolute;inset:var(--hud-h) 0 var(--tick-h);z-index:20;
+  display:grid;place-items:center;
+  padding:clamp(1rem,4vw,2.5rem);
+}
+
+/* ── 진입 화면 ──────────────────────────────────── */
+.gate{text-align:center;max-width:min(720px,92vw)}
+.warn{
+  display:inline-block;
+  margin:0 0 clamp(1rem,4vw,1.6rem);
+  padding:.4em .8em;border:1px solid rgba(255,30,86,.55);border-radius:2px;
+  background:rgba(255,30,86,.12);
+  font-family:var(--mono);font-size:clamp(11px,3vw,14px);letter-spacing:.24em;
+  color:#ff8099;font-weight:700;
+  animation:warnblink 1.1s steps(2,end) infinite;
+}
+@keyframes warnblink{50%{opacity:.5}}
+.gate-title{
+  margin:0;font-family:"Black Han Sans",var(--body);font-weight:400;
+  font-size:clamp(2.9rem,14vw,7rem);line-height:.92;letter-spacing:-.02em;
+  color:var(--cream);
+  text-shadow:3px 3px 0 var(--grape),-3px -3px 0 var(--cyber);
+  animation:jitter 3.4s steps(1,end) infinite;
+}
+@keyframes jitter{
+  0%,86%,100%{transform:none;text-shadow:3px 3px 0 var(--grape),-3px -3px 0 var(--cyber)}
+  88%{transform:translate(-4px,2px) skewX(-3deg);text-shadow:6px 0 0 var(--siren),-6px 0 0 var(--cyber)}
+  91%{transform:translate(5px,-2px) skewX(3deg);text-shadow:-6px 2px 0 var(--volt),6px -2px 0 var(--grape)}
+  94%{transform:translate(-2px,0)}
+}
+.gate-sub{
+  margin:clamp(1.1rem,4vw,1.8rem) 0 clamp(1.6rem,6vw,2.4rem);
+  font-size:clamp(.9rem,3.4vw,1.15rem);font-weight:700;
+  color:rgba(255,249,240,.68);
+}
+
+/* ── 버튼 ───────────────────────────────────────── */
+.btn{
+  font-family:"Bagel Fat One",var(--body);font-weight:400;cursor:pointer;
+  border:none;border-radius:999px;
+  padding:clamp(.85rem,3.4vw,1.15rem) clamp(1.6rem,7vw,2.6rem);
+  font-size:clamp(1.05rem,4.4vw,1.6rem);letter-spacing:.01em;
+  transition:transform .12s ease,box-shadow .2s ease,filter .2s ease;
+}
+.btn:focus-visible{outline:3px solid var(--volt);outline-offset:4px}
+.btn-siren{
+  background:linear-gradient(160deg,var(--siren),#ff8a3d);color:#fff;
+  box-shadow:0 0 0 4px rgba(255,30,86,.22),0 14px 40px rgba(255,30,86,.5);
+  animation:beg 1.5s ease-in-out infinite;
+}
+.btn-siren:hover{filter:brightness(1.08)}
+.btn-siren:active{transform:scale(.95)}
+@keyframes beg{
+  0%,100%{box-shadow:0 0 0 4px rgba(255,30,86,.22),0 14px 40px rgba(255,30,86,.5)}
+  50%{box-shadow:0 0 0 14px rgba(255,30,86,0),0 14px 54px rgba(255,30,86,.7)}
+}
+.btn-ghost{
+  background:transparent;color:var(--cream);
+  border:2px solid var(--line);
+  font-size:clamp(.9rem,3.4vw,1.1rem);
+  padding:clamp(.6rem,2.6vw,.8rem) clamp(1.2rem,5vw,1.8rem);
+}
+.btn-ghost:hover{border-color:var(--volt);color:var(--volt)}
+
+/* ── 본 화면 ────────────────────────────────────── */
+.show{position:relative;text-align:center;width:100%;max-width:min(920px,94vw)}
+.eyebrow{
+  margin:0 0 clamp(.7rem,2.6vw,1.1rem);
+  font-family:var(--mono);font-size:clamp(10px,2.7vw,13px);letter-spacing:.2em;
+  color:#8ef7ff;font-weight:700;
+  text-shadow:0 0 14px rgba(0,240,255,.7);
+  animation:fadeUp .6s .1s both;
+}
+.names{
+  margin:0 0 clamp(.3rem,1.6vw,.6rem);
+  font-family:"Bagel Fat One",var(--body);font-weight:400;
+  font-size:clamp(1.35rem,6.4vw,2.6rem);
+  color:var(--volt);
+  text-shadow:0 0 26px rgba(250,255,0,.45);
+  animation:fadeUp .6s .25s both;
+}
+.names .heart{display:inline-block;margin:0 .35em;color:var(--siren);animation:thump 1.15s ease-in-out infinite}
+@keyframes thump{0%,100%{transform:scale(1)}18%{transform:scale(1.32)}36%{transform:scale(1)}54%{transform:scale(1.22)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.title{
+  margin:0;font-family:"Black Han Sans",var(--body);font-weight:400;
+  font-size:clamp(3.4rem,17vw,9.5rem);line-height:.9;letter-spacing:-.03em;
+  filter:drop-shadow(0 0 26px rgba(255,30,86,.5)) drop-shadow(0 8px 0 rgba(7,5,15,.6));
+}
+.t-char{
+  display:inline-block;
+  background-image:linear-gradient(96deg,var(--siren),var(--volt),var(--lime),var(--cyber),var(--grape),var(--siren));
+  background-size:420% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:hue 2.3s linear infinite,pop .55s cubic-bezier(.2,1.7,.4,1) backwards;
+}
+@keyframes hue{to{background-position:420% 0}}
+@keyframes pop{
+  from{opacity:0;transform:translateY(-70px) scale(.2) rotate(-16deg)}
+  60%{opacity:1;transform:translateY(6px) scale(1.16) rotate(3deg)}
+  to{opacity:1;transform:none}
+}
+
+.info{
+  margin:clamp(1.5rem,5vw,2.4rem) auto 0;padding:0;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem clamp(1rem,4vw,2rem);
+  animation:fadeUp .6s .95s both;
+}
+.info>div{display:flex;align-items:baseline;gap:.6em}
+.info dt{
+  font-family:var(--mono);font-size:clamp(9px,2.4vw,11px);letter-spacing:.18em;
+  color:var(--cyber);border:1px solid var(--line);padding:.22em .5em;border-radius:2px;
+}
+.info dd{margin:0;font-size:clamp(.88rem,3.4vw,1.1rem);font-weight:700;color:rgba(255,249,240,.9)}
+.show .btn-ghost{margin-top:clamp(1.6rem,5vw,2.4rem);animation:fadeUp .6s 1.15s both}
+
+/* ── 회전 이모지 궤도 ───────────────────────────── */
+.orbit{
+  position:absolute;top:50%;left:50%;
+  width:clamp(300px,74vmin,620px);aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  pointer-events:none;z-index:-1;
+  animation:spin 20s linear infinite;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.orbit span{
+  position:absolute;top:50%;left:50%;
+  font-size:clamp(1.2rem,4.4vw,2rem);
+  animation:counterspin 20s linear infinite;
+}
+@keyframes counterspin{to{rotate:-360deg}}
+
+/* ── 하객 리액션 말풍선 ─────────────────────────── */
+.reactions{position:absolute;inset:var(--hud-h) 0 var(--tick-h);z-index:30;pointer-events:none;overflow:hidden}
+.bubble{
+  position:absolute;
+  font-family:"Bagel Fat One",var(--body);
+  font-size:clamp(.95rem,3.6vw,1.45rem);
+  padding:.42em .85em;border-radius:999px;
+  background:var(--cream);color:var(--ink);
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+  white-space:nowrap;
+  animation:bubble 2.6s cubic-bezier(.2,1.5,.4,1) both;
+}
+.bubble.b2{background:var(--volt)}
+.bubble.b3{background:var(--cyber)}
+.bubble.b4{background:var(--siren);color:#fff}
+@keyframes bubble{
+  0%{opacity:0;transform:scale(.3) rotate(-10deg)}
+  14%{opacity:1;transform:scale(1.1) rotate(3deg)}
+  24%{transform:scale(1) rotate(-2deg)}
+  76%{opacity:1;transform:translateY(-14px) scale(1)}
+  100%{opacity:0;transform:translateY(-46px) scale(.9)}
+}
+
+/* ── 파티클 캔버스 ──────────────────────────────── */
+#fx{position:absolute;inset:0;z-index:35;pointer-events:none}
+
+/* ── 하단 속보 티커 ─────────────────────────────── */
+.ticker{
+  position:absolute;bottom:0;left:0;right:0;height:var(--tick-h);z-index:40;
+  display:flex;align-items:center;overflow:hidden;
+  background:var(--siren);color:#fff;
+  border-top:2px solid rgba(255,255,255,.35);
+}
+.ticker-track{
+  display:flex;flex:none;white-space:nowrap;
+  font-weight:900;font-size:clamp(11px,2.9vw,15px);letter-spacing:.02em;
+  animation:slide 34s linear infinite;
+}
+.ticker-track span{padding-right:2.5rem}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* ── 플래시 ─────────────────────────────────────── */
+.flash{position:absolute;inset:0;z-index:60;pointer-events:none;background:#fff;opacity:0}
+.flash.go{animation:strobe .55s steps(1,end) both}
+@keyframes strobe{
+  0%{opacity:1}12%{opacity:.05}20%{opacity:.9}32%{opacity:0}
+  44%{opacity:.6}56%{opacity:0}70%{opacity:.28}100%{opacity:0}
+}
+
+/* ── 접근성: 모션 최소화 ────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  .bg,.stars,.live i,.warn,.gate-title,.btn-siren,.names .heart,
+  .orbit,.orbit span,.ticker-track,.t-char{animation:none!important}
+  #screen.quake{animation:none!important}
+  .flash.go{animation:none!important}
+  .t-char{background-position:0 0;color:var(--volt);-webkit-text-fill-color:currentColor}
+}
+</style>
+</head>
+<body>
+
+<div id="screen">
+  <div class="bg"></div>
+  <div class="stars"></div>
+  <div class="vignette"></div>
+
+  <header class="hud">
+    <span class="live"><i></i>LIVE</span>
+    <span class="hud-label" id="hudLabel">단독 입수</span>
+    <span class="hud-clock" id="clock">--:--:--</span>
+  </header>
+
+  <main class="stage">
+    <!-- 진입 -->
+    <section class="gate" id="gate">
+      <p class="warn">⚠ 확인되지 않은 제보 ⚠</p>
+      <h1 class="gate-title">이거<br>진짜라는데</h1>
+      <p class="gate-sub">누르면 되돌릴 수 없습니다</p>
+      <button class="btn btn-siren" id="boom">속보 터뜨리기</button>
+    </section>
+
+    <!-- 본 화면 -->
+    <section class="show" id="show" hidden>
+      <div class="orbit" id="orbit" aria-hidden="true"></div>
+      <p class="eyebrow">방송을 잠시 중단하고 전해드립니다</p>
+      <p class="names" id="names"></p>
+      <h1 class="title" id="title"></h1>
+      <dl class="info">
+        <div><dt>일시</dt><dd id="date"></dd></div>
+        <div><dt>장소</dt><dd id="venue"></dd></div>
+      </dl>
+      <button class="btn btn-ghost" id="again">한 번 더 터뜨리기</button>
+    </section>
+  </main>
+
+  <div class="reactions" id="reactions" aria-hidden="true"></div>
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <footer class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </footer>
+
+  <div class="flash" id="flash"></div>
+  <div class="scan"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   ▼▼▼ 여기만 고치세요 ▼▼▼
+   ═══════════════════════════════════════════════════ */
+const CONFIG = {
+  groom:   '김철수',
+  bride:   '이영희',
+  title:   '결혼합니다',                       // 큰 글씨 (5~6자 권장)
+  date:    '2026년 10월 17일 (토) 오후 1시',
+  venue:   '더그레이스 웨딩홀 5층 그랜드홀',
+
+  // 하단 속보 자막
+  ticker: [
+    '[단독] 30대 남성 1명, 자진해서 평생 계약 체결',
+    '목격자 "말릴 수가 없었다"',
+    '청첩장 수령 직후 축의금 계좌 조회 급증',
+    '두 사람 측 "국수는 넉넉히 준비했다"',
+    '전문가 "이건 못 막는다"',
+  ],
+
+  // 랜덤으로 튀어나오는 하객 리액션
+  reactions: [
+    '헐','대박','실화냐','축하해!!','ㅇㅁㅇ','국수 언제 먹어',
+    '이거 실검 1위','축가 내가 함','잘 살아라 진짜','눈물 남',
+    '드디어!!','예쁘게 살아','부럽다 진짜','와 미쳤다',
+  ],
+
+  // 폭죽에 섞이는 이모지
+  emojis: ['🎉','🎊','💍','💕','🥳','🌹','🍾','💖','✨','👰','🤵'],
+};
+/* ═══════════════════════════════════════════════════
+   ▲▲▲ 여기까지 ▲▲▲  (아래는 안 건드려도 됩니다)
+   ═══════════════════════════════════════════════════ */
+
+const $ = (id) => document.getElementById(id);
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+/* ── 방송 시계 ──────────────────────────────────── */
+function tickClock() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  $('clock').textContent = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+/* ── 하단 티커 ──────────────────────────────────── */
+(function buildTicker() {
+  const line = CONFIG.ticker.map((t) => `🚨 ${t}`).join('   ');
+  const track = $('tickerTrack');
+  track.innerHTML = `<span>${line}</span><span>${line}</span>`;
+})();
+
+/* ── 도망가는 버튼 ──────────────────────────────── */
+(function dodge() {
+  const btn = $('boom');
+  if (REDUCED) return;
+  addEventListener('pointermove', (e) => {
+    if ($('gate').hidden) return;
+    const r = btn.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    const dist = Math.hypot(dx, dy) || 1;
+    const pull = Math.max(0, 1 - dist / 320);           // 가까울수록 더 도망
+    const cap = 16;
+    btn.style.transform = `translate(${(-dx / dist) * cap * pull}px,${(-dy / dist) * cap * pull}px)`;
+  }, { passive: true });
+})();
+
+/* ── 파티클 엔진 ────────────────────────────────── */
+const cvs = $('fx');
+const ctx = cvs.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+const parts = [];
+const MAX = REDUCED ? 90 : 460;
+let celebrating = false;
+let last = 0, spawnAcc = 0;
+
+function resize() {
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cvs.width = W * DPR; cvs.height = H * DPR;
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+resize();
+addEventListener('resize', resize);
+
+const CONFETTI_COLORS = ['#ff1e56', '#faff00', '#00f0ff', '#b026ff', '#4ade80', '#fff9f0', '#ff8a3d'];
+
+function addConfetti(x, y, vx, vy) {
+  parts.push({
+    kind: 'confetti', x, y, vx, vy,
+    w: rand(6, 13), h: rand(9, 20),
+    spin: rand(0, 6.3), vs: rand(-9, 9),
+    color: pick(CONFETTI_COLORS), life: rand(2.4, 4.4), age: 0, drag: 0.986,
+  });
+}
+function addEmoji(x, y, vx, vy) {
+  parts.push({
+    kind: 'emoji', x, y, vx, vy,
+    size: rand(20, 42), spin: rand(0, 6.3), vs: rand(-4, 4),
+    char: pick(CONFIG.emojis), life: rand(2.6, 4.6), age: 0, drag: 0.99,
+  });
+}
+function addHeart() {
+  parts.push({
+    kind: 'heart', x: rand(0, W), y: H + 30,
+    vx: rand(-14, 14), vy: rand(-110, -58),
+    size: rand(16, 34), char: pick(['💖', '💕', '❤️', '💗']),
+    sway: rand(0, 6.3), life: rand(4, 6.5), age: 0, drag: 1,
+  });
+}
+
+/** 화면 한 지점에서 폭죽 터뜨리기 */
+function burst(x, y, n) {
+  if (REDUCED) n = Math.min(n, 24);
+  for (let i = 0; i < n; i++) {
+    const a = rand(-Math.PI, 0.15);                     // 위쪽으로 부채꼴
+    const sp = rand(220, 720);
+    const vx = Math.cos(a) * sp, vy = Math.sin(a) * sp;
+    if (parts.length > MAX) break;
+    if (Math.random() < 0.22) addEmoji(x, y, vx * .7, vy * .7);
+    else addConfetti(x, y, vx, vy);
+  }
+}
+
+function frame(t) {
+  const dt = Math.min((t - last) / 1000 || 0, 0.05);
+  last = t;
+
+  // 축하 중이면 위에서 계속 뿌리고 하트를 올림
+  if (celebrating && parts.length < MAX) {
+    spawnAcc += dt;
+    const gap = REDUCED ? 0.5 : 0.055;
+    while (spawnAcc > gap) {
+      spawnAcc -= gap;
+      addConfetti(rand(0, W), -20, rand(-40, 40), rand(40, 130));
+      if (Math.random() < 0.3) addHeart();
+      if (Math.random() < 0.12) addEmoji(rand(0, W), -30, rand(-30, 30), rand(50, 110));
+    }
+  }
+
+  ctx.clearRect(0, 0, W, H);
+
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.age += dt;
+    if (p.age > p.life || p.y > H + 90) { parts.splice(i, 1); continue; }
+
+    if (p.kind === 'heart') {
+      p.sway += dt * 2.4;
+      p.x += (p.vx + Math.sin(p.sway) * 34) * dt;
+      p.y += p.vy * dt;
+    } else {
+      p.vy += 880 * dt;                                 // 중력
+      p.vx *= p.drag; p.vy *= p.drag;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.spin += p.vs * dt;
+    }
+
+    const fade = Math.min(1, (p.life - p.age) / 0.8);
+    ctx.globalAlpha = Math.max(0, fade);
+
+    if (p.kind === 'confetti') {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.spin);
+      ctx.scale(1, Math.max(.15, Math.abs(Math.cos(p.spin * 1.7))));  // 팔랑거림
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    } else {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      if (p.kind === 'emoji') ctx.rotate(p.spin);
+      ctx.font = `${p.size}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.char, 0, 0);
+      ctx.restore();
+    }
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ── 하객 리액션 말풍선 ─────────────────────────── */
+let reactTimer = null;
+function popReaction() {
+  const box = $('reactions');
+  const el = document.createElement('div');
+  el.className = 'bubble b' + (1 + ((Math.random() * 4) | 0));
+  el.textContent = pick(CONFIG.reactions);
+  // 타이틀을 가리지 않도록 좌·우 여백대에만 띄운다
+  if (Math.random() < 0.5) el.style.left = rand(2, 20) + '%';
+  else el.style.right = rand(2, 20) + '%';
+  el.style.top = rand(6, 84) + '%';
+  box.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+function startReactions() {
+  clearInterval(reactTimer);
+  reactTimer = setInterval(popReaction, REDUCED ? 2600 : 620);
+}
+
+/* ── 회전 이모지 궤도 ───────────────────────────── */
+(function buildOrbit() {
+  const orbit = $('orbit');
+  const n = 10;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const s = document.createElement('span');
+    s.textContent = CONFIG.emojis[i % CONFIG.emojis.length];
+    s.style.left = `calc(50% + ${Math.cos(a - Math.PI / 2) * 50}%)`;
+    s.style.top = `calc(50% + ${Math.sin(a - Math.PI / 2) * 50}%)`;
+    s.style.transform = 'translate(-50%,-50%)';
+    s.style.animationDelay = -(i / n) * 20 + 's';
+    orbit.appendChild(s);
+  }
+})();
+
+/* ── 본 화면 렌더 (글자 단위 pop-in) ────────────── */
+function renderShow() {
+  $('names').innerHTML =
+    `${CONFIG.groom}<span class="heart">♥</span>${CONFIG.bride}`;
+
+  const title = $('title');
+  title.innerHTML = '';
+  [...CONFIG.title].forEach((ch, i) => {
+    if (ch === ' ') { title.appendChild(document.createTextNode(' ')); return; }
+    const s = document.createElement('span');
+    s.className = 't-char';
+    s.textContent = ch;
+    s.style.animationDelay = `${i * -0.18}s, ${0.4 + i * 0.08}s`;
+    title.appendChild(s);
+  });
+
+  $('date').textContent = CONFIG.date;
+  $('venue').textContent = CONFIG.venue;
+}
+
+/* ── 터뜨리기 ───────────────────────────────────── */
+function blowUp(first) {
+  const screen = $('screen'), flash = $('flash');
+  flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+  screen.classList.remove('quake'); void screen.offsetWidth; screen.classList.add('quake');
+
+  if (first) {
+    $('gate').hidden = true;
+    $('show').hidden = false;
+    $('hudLabel').textContent = '방송 사고';
+    startReactions();
+  }
+  renderShow();
+  celebrating = true;
+
+  const cx = W / 2, cy = H * 0.52;
+  burst(cx, cy, 150);
+  setTimeout(() => burst(W * 0.16, H * 0.72, 110), 220);
+  setTimeout(() => burst(W * 0.84, H * 0.72, 110), 380);
+  setTimeout(() => burst(cx, H * 0.3, 130), 560);
+}
+
+$('boom').addEventListener('click', () => blowUp(true));
+$('again').addEventListener('click', () => blowUp(false));
+</script>
+</body>
+</html>
