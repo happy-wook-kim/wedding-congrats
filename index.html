@@ -215,15 +215,18 @@ body{
 
 .info{
   margin:clamp(1.5rem,5vw,2.4rem) auto 0;padding:0;
-  display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem clamp(1rem,4vw,2rem);
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:.7rem clamp(1.1rem,4vw,2.2rem);
+  text-align:center;
   animation:fadeUp .6s .95s both;
 }
-.info>div{display:flex;align-items:baseline;gap:.6em}
+.info>div{display:flex;align-items:center;gap:.6em}
 .info dt{
-  font-family:var(--mono);font-size:clamp(9px,2.4vw,11px);letter-spacing:.18em;
-  color:var(--cyber);border:1px solid var(--line);padding:.22em .5em;border-radius:2px;
+  font-family:var(--mono);font-size:clamp(10px,2.6vw,13px);letter-spacing:.16em;font-weight:700;
+  color:var(--cyber);border:1px solid var(--line);padding:.3em .55em;border-radius:2px;
+  white-space:nowrap;
 }
-.info dd{margin:0;font-size:clamp(.88rem,3.4vw,1.1rem);font-weight:700;color:rgba(255,249,240,.9)}
+.info dd{margin:0;font-size:clamp(1.05rem,4.2vw,1.5rem);font-weight:900;color:var(--cream)}
 .show .btn-ghost{margin-top:clamp(1.6rem,5vw,2.4rem);animation:fadeUp .6s 1.15s both}
 
 /* ── 회전 이모지 궤도 ───────────────────────────── */
