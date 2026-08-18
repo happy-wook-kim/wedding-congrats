@@ -293,7 +293,7 @@ body{
 
 /* ── 스크롤 유도 ────────────────────────────────── */
 .scrolldown{
-  position:absolute;left:50%;z-index:38;
+  position:absolute;left:50%;transform:translateX(-50%);z-index:38;
   bottom:calc(var(--tick-h) + clamp(.5rem,2.2vw,.9rem));
   display:flex;flex-direction:column;align-items:center;gap:.45em;
   padding:.6em 1.1em .5em;border-radius:999px;
@@ -301,15 +301,16 @@ body{
   backdrop-filter:blur(6px);
   color:var(--cream);text-decoration:none;
   font-family:var(--mono);font-size:clamp(10px,2.6vw,12px);letter-spacing:.14em;
-  animation:bob 1.7s ease-in-out infinite;
 }
 .scrolldown i{
-  width:.5em;height:.5em;rotate:45deg;
+  width:.5em;height:.5em;
   border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:rotate(45deg);
+  animation:bob 1.7s ease-in-out infinite;
 }
 @keyframes bob{
-  0%,100%{transform:translate(-50%,0)}
-  50%{transform:translate(-50%,7px)}
+  0%,100%{transform:translateY(0) rotate(45deg)}
+  50%{transform:translateY(5px) rotate(45deg)}
 }
 .scrolldown:hover{color:var(--volt);border-color:var(--volt)}
 .scrolldown:focus-visible{outline:2px solid var(--volt);outline-offset:5px}
@@ -384,8 +385,7 @@ body{
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .bg,.stars,.live i,.warn,.gate-title,.btn-siren,.names .heart,
-  .orbit,.orbit span,.ticker-track,.t-char,.scrolldown{animation:none!important}
-  .scrolldown{transform:translateX(-50%)}
+  .orbit,.orbit span,.ticker-track,.t-char,.scrolldown i{animation:none!important}
   #screen.quake{animation:none!important}
   .flash.go{animation:none!important}
   .t-char{background-position:0 0;color:var(--volt);-webkit-text-fill-color:currentColor}
