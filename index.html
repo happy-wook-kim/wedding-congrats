@@ -7,7 +7,7 @@
 <title>긴급 속보 · 장인엽 ♥ 손정은</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bagel+Fat+One&family=Gothic+A1:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bagel+Fat+One&family=Gothic+A1:wght@400;700;900&family=Gowun+Batang:wght@400;700&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
    결혼 축하 속보 · 방송 사고 컨셉
@@ -26,20 +26,26 @@
   --tick-h:clamp(34px,7vw,44px);
   --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
   --body:"Gothic A1",system-ui,-apple-system,sans-serif;
+  /* 청첩장 섹션 (종이 톤) */
+  --paper:#f6f4ef;
+  --paper-ink:#2b2825;
+  --paper-soft:#4d4741;
+  --paper-mute:#8c847a;
+  --paper-rule:#d6d0c6;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{margin:0;padding:0;height:100%}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0}
 body{
   background:var(--ink);
   color:var(--cream);
   font-family:var(--body);
-  overflow:hidden;
   -webkit-font-smoothing:antialiased;
 }
 
 /* ── 화면 전체(방송 화면) ───────────────────────── */
-#screen{position:fixed;inset:0;overflow:hidden}
+#screen{position:relative;height:100dvh;min-height:460px;overflow:hidden}
 #screen.quake{animation:quake .62s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes quake{
   10%,90%{transform:translate3d(-3px,1px,0) rotate(-.35deg)}
@@ -285,10 +291,101 @@ body{
   44%{opacity:.6}56%{opacity:0}70%{opacity:.28}100%{opacity:0}
 }
 
+/* ── 스크롤 유도 ────────────────────────────────── */
+.scrolldown{
+  position:absolute;left:50%;z-index:38;
+  bottom:calc(var(--tick-h) + clamp(.5rem,2.2vw,.9rem));
+  display:flex;flex-direction:column;align-items:center;gap:.45em;
+  padding:.6em 1.1em .5em;border-radius:999px;
+  background:rgba(7,5,15,.5);border:1px solid rgba(255,249,240,.35);
+  backdrop-filter:blur(6px);
+  color:var(--cream);text-decoration:none;
+  font-family:var(--mono);font-size:clamp(10px,2.6vw,12px);letter-spacing:.14em;
+  animation:bob 1.7s ease-in-out infinite;
+}
+.scrolldown i{
+  width:.5em;height:.5em;rotate:45deg;
+  border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+}
+@keyframes bob{
+  0%,100%{transform:translate(-50%,0)}
+  50%{transform:translate(-50%,7px)}
+}
+.scrolldown:hover{color:var(--volt);border-color:var(--volt)}
+.scrolldown:focus-visible{outline:2px solid var(--volt);outline-offset:5px}
+
+/* ── 청첩장 섹션 ────────────────────────────────── */
+.card{
+  background:var(--paper);color:var(--paper-ink);
+  font-family:"Gowun Batang",serif;
+  padding:clamp(3.4rem,11vw,6.5rem) clamp(1.3rem,6vw,3rem) clamp(2.8rem,8vw,4.5rem);
+}
+.card-inner{max-width:660px;margin:0 auto;text-align:center}
+.cover-date{
+  font-family:"Cormorant Garamond",serif;font-weight:300;
+  font-size:clamp(2.5rem,11vw,4rem);line-height:1;letter-spacing:.01em;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
+}
+.cover-names{
+  margin:.75rem 0 0;
+  font-family:"Cormorant Garamond",serif;font-weight:300;
+  font-size:clamp(.92rem,3.6vw,1.2rem);letter-spacing:.15em;color:var(--paper-mute);
+}
+.rule{width:1px;height:clamp(1.5rem,5vw,2.3rem);background:var(--paper-rule);margin:clamp(1.2rem,4vw,1.8rem) auto}
+.greeting p{
+  margin:.5em 0;
+  font-size:clamp(.93rem,3.5vw,1.05rem);line-height:2.05;color:var(--paper-soft);
+}
+.hosts{
+  display:inline-grid;grid-template-columns:1fr auto 1fr;
+  gap:clamp(.5rem,2vw,.7rem) 0;align-items:baseline;
+  font-size:clamp(.95rem,3.7vw,1.12rem);
+}
+.hosts .parent{text-align:right;color:var(--paper-soft)}
+.hosts .rel{margin:0 .5em;font-size:.76em;color:var(--paper-mute)}
+.hosts .who{text-align:left;font-weight:700}
+.when{margin:0;font-size:clamp(.95rem,3.6vw,1.08rem);line-height:1.9;color:var(--paper-soft)}
+.when strong{display:block;font-weight:700;color:var(--paper-ink);margin-top:.3em}
+
+.way-head{
+  margin:0 0 clamp(1.4rem,5vw,2rem);
+  font-family:"Gothic A1",sans-serif;font-size:clamp(10px,2.7vw,12px);
+  letter-spacing:.1em;color:var(--paper-mute);
+}
+.place{margin:0 0 clamp(1.8rem,6vw,2.6rem);line-height:1.9}
+.place b{display:block;font-size:clamp(1rem,3.8vw,1.15rem);margin-bottom:.25em}
+.place span{font-family:"Gothic A1",sans-serif;font-size:clamp(.82rem,3.2vw,.9rem);color:var(--paper-soft)}
+.place a{color:var(--paper-soft);text-decoration:none;border-bottom:1px solid var(--paper-rule)}
+
+.transport{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:clamp(1.5rem,5vw,2.2rem) clamp(1.6rem,5vw,2.6rem);
+  text-align:left;font-family:"Gothic A1",sans-serif;
+}
+.transport h3{
+  margin:0 0 .8em;padding-bottom:.5em;
+  border-bottom:1px solid var(--paper-rule);
+  font-size:clamp(10px,2.7vw,12px);font-weight:700;letter-spacing:.08em;color:var(--paper-mute);
+}
+.transport ul{margin:0;padding:0;list-style:none}
+.transport li{
+  font-size:clamp(.81rem,3.2vw,.89rem);line-height:1.8;color:var(--paper-soft);
+  margin-bottom:.4em;
+}
+.transport li.sub{padding-left:1.1em;color:var(--paper-mute)}
+.transport .tag{color:var(--paper-mute)}
+.note{
+  margin:clamp(1.8rem,6vw,2.6rem) 0 0;
+  font-family:"Gothic A1",sans-serif;font-size:clamp(.78rem,3vw,.85rem);
+  color:var(--paper-mute);
+}
+
 /* ── 접근성: 모션 최소화 ────────────────────────── */
 @media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
   .bg,.stars,.live i,.warn,.gate-title,.btn-siren,.names .heart,
-  .orbit,.orbit span,.ticker-track,.t-char{animation:none!important}
+  .orbit,.orbit span,.ticker-track,.t-char,.scrolldown{animation:none!important}
+  .scrolldown{transform:translateX(-50%)}
   #screen.quake{animation:none!important}
   .flash.go{animation:none!important}
   .t-char{background-position:0 0;color:var(--volt);-webkit-text-fill-color:currentColor}
@@ -338,9 +435,89 @@ body{
     <div class="ticker-track" id="tickerTrack"></div>
   </footer>
 
+  <a class="scrolldown" id="scrollcue" href="#card" hidden>
+    <span>청첩장 보기</span><i></i>
+  </a>
+
   <div class="flash" id="flash"></div>
   <div class="scan"></div>
 </div>
+
+<!-- 청첩장 섹션: 실제 청첩장을 그대로 옮긴 정적 HTML (CONFIG와 무관, 여기서 직접 수정) -->
+<section class="card" id="card">
+  <div class="card-inner">
+
+    <p class="cover-date">9/13</p>
+    <p class="cover-names">Inyeop Jang &nbsp;+&nbsp; Jeoungeun Son</p>
+
+    <div class="rule"></div>
+
+    <div class="greeting">
+      <p>오래전 작은 인연이 우리를 연인으로 만들었고</p>
+      <p>그 인연이 이제 하나가 됩니다.</p>
+      <p>하나 된 삶을 향해 첫걸음을 내딛는 뜻깊은 날,</p>
+      <p>기꺼이 오셔서 시작하는 모습을 함께해주시면 감사하겠습니다.</p>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="hosts">
+      <span class="parent">이환옥</span><span class="rel">의 아들</span><span class="who">장인엽</span>
+      <span class="parent">손형용 · 이재숙</span><span class="rel">의 장녀</span><span class="who">손정은</span>
+    </div>
+
+    <div class="rule"></div>
+
+    <p class="when">
+      2026년 9월 13일 일요일 오전 11시
+      <strong>가천컨벤션센터</strong>
+    </p>
+
+    <div class="rule"></div>
+
+    <p class="way-head">오시는 길</p>
+
+    <p class="place">
+      <b>가천컨벤션센터</b>
+      <span>
+        경기 성남시 수정구 성남대로 1342 (복정동 620-2)<br>
+        TEL. <a href="tel:031-755-3000">031-755-3000</a>
+      </span>
+    </p>
+
+    <div class="transport">
+      <div>
+        <h3>지하철</h3>
+        <ul>
+          <li><span class="tag">[수인분당선]</span> 가천대역 1번 출구 또는 연결통로</li>
+          <li><span class="tag">[2호선]</span> 선릉역에서 수인분당선 환승 ▶ 가천대역</li>
+          <li class="sub">잠실역에서 8호선 환승 후 복정역에서 수인분당선 환승 ▶ 가천대역</li>
+          <li><span class="tag">[3호선]</span> 도곡역에서 수인분당선 환승 ▶ 가천대역</li>
+          <li class="sub">수서역에서 수인분당선 환승 ▶ 가천대역</li>
+        </ul>
+      </div>
+      <div>
+        <h3>고속철도</h3>
+        <ul>
+          <li>SRT 수서역에서 수인분당선 탑승 ▶ 가천대역</li>
+        </ul>
+        <h3 style="margin-top:1.4em">버스</h3>
+        <ul>
+          <li><span class="tag">[직행 버스]</span> 500-1, 500-2, 1117 &nbsp; <span class="tag">[광역 버스]</span> 9403</li>
+          <li><span class="tag">[수도권 외곽고속순환도로 가천대역 환승정류장]</span><br>1112, 1650, 8409, 8109</li>
+        </ul>
+        <h3 style="margin-top:1.4em">내비게이션</h3>
+        <ul>
+          <li><span class="tag">[통합 검색]</span> 가천컨벤션센터 입력</li>
+          <li><span class="tag">[주소 검색]</span> 경기도 성남시 수정구 성남대로 1342 (복정동 620-2)</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note">* 전용 주차장 지하 4층 (무료 주차 가능)</p>
+
+  </div>
+</section>
 
 <script>
 /* ═══════════════════════════════════════════════════
@@ -597,6 +774,7 @@ function blowUp(first) {
     $('gate').hidden = true;
     $('show').hidden = false;
     $('hudLabel').textContent = '방송 사고';
+    $('scrollcue').hidden = false;
     startReactions();
   }
   renderShow();
