@@ -258,7 +258,7 @@ body{
 @keyframes counterspin{to{rotate:-360deg}}
 
 /* ── 하객 리액션 말풍선 ─────────────────────────── */
-.reactions{position:absolute;inset:var(--hud-h) 0 var(--tick-h);z-index:15;pointer-events:none;overflow:hidden}
+.reactions{position:absolute;inset:var(--hud-h) 0 var(--tick-h);z-index:25;pointer-events:none;overflow:hidden}
 .bubble{
   position:absolute;
   font-family:"Bagel Fat One",var(--body);
@@ -928,11 +928,25 @@ requestAnimationFrame(frame);
 
 /* ── 하객 리액션 말풍선 ─────────────────────────── */
 let reactTimer = null;
+const recent = [];                                  // 최근에 쓴 문구 index
+const AVOID = 5;                                    // 동시에 떠 있는 최대 개수(측정값 5)만큼 피함
+
+/** 최근에 나온 문구를 피해서 다음 문구를 고른다 */
+function nextReaction() {
+  const list = CONFIG.reactions;
+  const avoid = Math.min(AVOID, list.length - 1);
+  let i, guard = 0;
+  do { i = (Math.random() * list.length) | 0; } while (recent.includes(i) && ++guard < 40);
+  recent.push(i);
+  if (recent.length > avoid) recent.shift();
+  return list[i];
+}
+
 function popReaction() {
   const box = $('reactions');
   const el = document.createElement('div');
   el.className = 'bubble b' + (1 + ((Math.random() * 4) | 0));
-  el.textContent = pick(CONFIG.reactions);
+  el.textContent = nextReaction();
   // 타이틀을 가리지 않도록 좌·우 여백대에만 띄운다
   if (Math.random() < 0.5) el.style.left = rand(2, 20) + '%';
   else el.style.right = rand(2, 20) + '%';
