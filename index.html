@@ -180,6 +180,7 @@ body{
   font-family:var(--mono);font-size:clamp(10px,2.7vw,13px);letter-spacing:.2em;
   color:#8ef7ff;font-weight:700;
   text-shadow:0 0 14px rgba(0,240,255,.7);
+  position:relative;z-index:2;
   animation:fadeUp .6s .1s both;
 }
 .names{
@@ -188,6 +189,7 @@ body{
   font-size:clamp(1.35rem,6.4vw,2.6rem);
   color:var(--volt);
   text-shadow:0 0 26px rgba(250,255,0,.45);
+  position:relative;z-index:2;
   animation:fadeUp .6s .25s both;
 }
 .names .heart{display:inline-block;margin:0 .35em;color:var(--siren);animation:thump 1.15s ease-in-out infinite}
@@ -220,6 +222,7 @@ body{
   display:flex;flex-direction:column;align-items:center;
   gap:clamp(.35rem,1.6vw,.6rem);
   text-align:center;
+  position:relative;z-index:2;       /* 풍선(1)에 가려지지 않도록 */
   animation:fadeUp .6s .95s both;
 }
 .info>div{display:flex;align-items:center;justify-content:center;gap:.6em}
@@ -238,6 +241,7 @@ body{
   display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
   gap:clamp(.6rem,2.5vw,1rem);
   margin-top:clamp(1.6rem,5vw,2.4rem);
+  position:relative;z-index:2;       /* 풍선(1)에 가려지지 않도록 */
   animation:fadeUp .6s 1.15s both;
 }
 
@@ -258,7 +262,9 @@ body{
 @keyframes counterspin{to{rotate:-360deg}}
 
 /* ── 하객 리액션 말풍선 ─────────────────────────── */
-.reactions{position:absolute;inset:var(--hud-h) 0 var(--tick-h);z-index:25;pointer-events:none;overflow:hidden}
+/* .stage 안에 두어야 타이틀·본문과 같은 쌓임 맥락에서 층을 비교할 수 있다
+   층 순서: 타이틀(auto) < 풍선(1) < 이름·일시·버튼(2) */
+.reactions{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .bubble{
   position:absolute;
   font-family:"Bagel Fat One",var(--body);
@@ -557,9 +563,10 @@ body{
         </a>
       </div>
     </section>
+
+    <div class="reactions" id="reactions" aria-hidden="true"></div>
   </main>
 
-  <div class="reactions" id="reactions" aria-hidden="true"></div>
   <canvas id="fx" aria-hidden="true"></canvas>
 
   <footer class="ticker" aria-hidden="true">
@@ -748,6 +755,8 @@ const CONFIG = {
     '헐','대박','실화냐','축하해!!','국수 언제 먹어',
     '이거 실검 1위','축가 내가 함','잘 살아라 진짜','눈물 남',
     '드디어!!','예쁘게 살아','부럽다 진짜','와 미쳤다',
+    '신부님 예쁘다','미쳤다 진짜','드디어 가는구나',
+    '평생 웃자','그날 비워둠','밥 많이 먹을게',
   ],
 
   // 폭죽에 섞이는 이모지
