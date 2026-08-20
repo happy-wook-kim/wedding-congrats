@@ -544,7 +544,7 @@ body{
     <span class="live"><i></i>LIVE</span>
     <span class="hud-label" id="hudLabel">단독 입수</span>
     <span class="hud-clock" id="clock">--:--:--</span>
-    <button class="hud-mute" id="mute" aria-pressed="false" aria-label="효과음 끄기">🔊</button>
+    <button class="hud-mute" id="mute" aria-pressed="false" aria-label="소리 끄기">🔊</button>
   </header>
 
   <main class="stage">
@@ -813,27 +813,33 @@ setInterval(tickClock, 1000);
   }, { passive: true });
 })();
 
-/* ── 효과음 (Web Audio 합성, 음원 파일 없음) ─────── */
-const Sound = (() => {
+/* ── 오디오 공통 (Web Audio 합성, 음원 파일 없음) ── */
+const AudioBus = (() => {
   let ctx = null, master = null, on = true;
+  return {
+    get on() { return on; },
+    set on(v) { on = v; if (master) master.gain.value = v ? 0.5 : 0; },
+    /** 첫 사용자 조작 시점에 생성된다 (자동재생 정책) */
+    ready() {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+        master = ctx.createGain();
+        master.gain.value = on ? 0.5 : 0;
+        master.connect(ctx.destination);
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    },
+    out() { return master; },
+  };
+})();
 
-  function ensure() {
-    if (ctx) return ctx;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    ctx = new AC();
-    master = ctx.createGain();
-    master.gain.value = 0.5;
-    master.connect(ctx.destination);
-    return ctx;
-  }
-  function ready() {
-    if (!on || !ensure()) return false;
-    if (ctx.state === 'suspended') ctx.resume();
-    return true;
-  }
+/* ── 효과음 ─────────────────────────────────────── */
+const Sound = (() => {
   /** 짧은 화이트노이즈 버퍼 */
-  function noise(dur) {
+  function noise(ctx, dur) {
     const len = Math.floor(ctx.sampleRate * dur);
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = buf.getChannelData(0);
@@ -849,45 +855,109 @@ const Sound = (() => {
   }
 
   return {
-    get on() { return on; },
-    set on(v) { on = v; if (master) master.gain.value = v ? 0.5 : 0; },
-
     /** 폭죽 터지는 소리: 저역 충격 + 파열 노이즈 */
     boom() {
-      if (!ready()) return;
-      const t = ctx.currentTime;
+      const ctx = AudioBus.ready(); if (!ctx) return;
+      const out = AudioBus.out(), t = ctx.currentTime;
 
       const o = ctx.createOscillator(), og = ctx.createGain();
       o.type = 'sine';
       o.frequency.setValueAtTime(160, t);
       o.frequency.exponentialRampToValueAtTime(38, t + 0.28);
       env(og, t, 0.9, 0.005, 0.3);
-      o.connect(og).connect(master);
+      o.connect(og).connect(out);
       o.start(t); o.stop(t + 0.4);
 
       const n = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain();
-      n.buffer = noise(0.5);
+      n.buffer = noise(ctx, 0.5);
       nf.type = 'bandpass';
       nf.frequency.setValueAtTime(1800, t);
       nf.frequency.exponentialRampToValueAtTime(400, t + 0.4);
       nf.Q.value = 0.8;
       env(ng, t, 0.5, 0.004, 0.42);
-      n.connect(nf).connect(ng).connect(master);
+      n.connect(nf).connect(ng).connect(out);
       n.start(t); n.stop(t + 0.5);
     },
 
     /** 클릭할 때 톡 튀는 소리 */
     pop() {
-      if (!ready()) return;
-      const t = ctx.currentTime;
+      const ctx = AudioBus.ready(); if (!ctx) return;
+      const out = AudioBus.out(), t = ctx.currentTime;
       const o = ctx.createOscillator(), g = ctx.createGain();
       o.type = 'triangle';
       const base = 520 + Math.random() * 480;   // 클릭마다 음높이를 흩어 단조로움 방지
       o.frequency.setValueAtTime(base, t);
       o.frequency.exponentialRampToValueAtTime(base * 2.2, t + 0.06);
       env(g, t, 0.3, 0.004, 0.09);
-      o.connect(g).connect(master);
+      o.connect(g).connect(out);
       o.start(t); o.stop(t + 0.15);
+    },
+  };
+})();
+
+/* ── 배경음: 파헬벨 카논 (1680년대, 퍼블릭 도메인) ── */
+const BGM = (() => {
+  const BPM = 76, BEAT = 60 / BPM;
+  const STEP = BEAT * 2;               // 화음 하나당 2박
+
+  // 카논 진행: D - A - Bm - F#m - G - D - G - A
+  const PROG = [
+    { bass: 50, notes: [62, 66, 69] },  // D   : D  F# A
+    { bass: 45, notes: [61, 64, 69] },  // A   : C# E  A
+    { bass: 47, notes: [62, 66, 71] },  // Bm  : D  F# B
+    { bass: 42, notes: [61, 66, 69] },  // F#m : C# F# A
+    { bass: 43, notes: [62, 67, 71] },  // G   : D  G  B
+    { bass: 38, notes: [62, 66, 69] },  // D   : D  F# A
+    { bass: 43, notes: [59, 62, 67] },  // G   : B  D  G
+    { bass: 45, notes: [61, 64, 69] },  // A   : C# E  A
+  ];
+  const ARP = [0, 1, 2, 1];            // 화음마다 8분음표 4개
+
+  const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
+
+  let bus = null, timer = null, step = 0, nextAt = 0;
+
+  function tone(ctx, freq, t, dur, type, peak, attack) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(bus);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+
+  function scheduleStep(ctx, i, t) {
+    const ch = PROG[i % PROG.length];
+    tone(ctx, hz(ch.bass), t, STEP * 0.95, 'sine', 0.55, 0.04);        // 통주저음
+    for (let k = 0; k < ARP.length; k++) {                              // 아르페지오
+      tone(ctx, hz(ch.notes[ARP[k]]), t + k * BEAT / 2, 0.8, 'triangle', 0.3, 0.01);
+    }
+  }
+
+  function tick() {
+    const ctx = AudioBus.ready(); if (!ctx) return;
+    while (nextAt < ctx.currentTime + 1) {        // 1초 앞까지 미리 예약
+      scheduleStep(ctx, step++, nextAt);
+      nextAt += STEP;
+    }
+  }
+
+  return {
+    get playing() { return timer !== null; },
+    start() {
+      const ctx = AudioBus.ready(); if (!ctx || timer) return;
+      // 삼각파의 날카로움을 깎아 오르골에 가깝게
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 2200; lp.Q.value = 0.7;
+      bus = ctx.createGain();
+      bus.gain.value = 0.8;                       // 오프라인 렌더링으로 맞춘 값 (RMS -27dBFS)
+      bus.connect(lp).connect(AudioBus.out());
+      step = 0;
+      nextAt = ctx.currentTime + 0.15;
+      tick();
+      timer = setInterval(tick, 250);
     },
   };
 })();
@@ -1110,6 +1180,7 @@ function blowUp(first) {
   celebrating = true;
 
   Sound.boom();
+  BGM.start();                                    // 사용자 조작 시점이라 자동재생 정책에 걸리지 않음
 
   const cx = W / 2, cy = H * 0.52;
   burst(cx, cy, 150);
@@ -1128,10 +1199,10 @@ $('screen').addEventListener('pointerdown', (e) => {
 
 const muteBtn = $('mute');
 muteBtn.addEventListener('click', () => {
-  Sound.on = !Sound.on;
-  muteBtn.textContent = Sound.on ? '🔊' : '🔇';
-  muteBtn.setAttribute('aria-pressed', String(!Sound.on));
-  muteBtn.setAttribute('aria-label', Sound.on ? '효과음 끄기' : '효과음 켜기');
+  AudioBus.on = !AudioBus.on;
+  muteBtn.textContent = AudioBus.on ? '🔊' : '🔇';
+  muteBtn.setAttribute('aria-pressed', String(!AudioBus.on));
+  muteBtn.setAttribute('aria-label', AudioBus.on ? '소리 끄기' : '소리 켜기');
 });
 
 $('boom').addEventListener('click', () => blowUp(true));
