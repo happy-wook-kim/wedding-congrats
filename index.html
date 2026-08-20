@@ -584,6 +584,9 @@ body{
     <div class="ticker-view"><div class="ticker-track" id="tickerTrack"></div></div>
   </footer>
 
+  <!-- 배경음: audio/bgm.mp3 를 넣으면 재생된다. 파일이 없으면 조용히 넘어간다 -->
+  <audio id="bgm" src="audio/bgm.mp3" loop preload="none"></audio>
+
   <div class="flash" id="flash"></div>
   <div class="scan"></div>
 </div>
@@ -769,9 +772,6 @@ const CONFIG = {
     '평생 웃자','그날 비워둠','밥 많이 먹을게',
   ],
 
-  // 배경음 악기: 'strings'(바이올린·첼로 합주) 또는 'piano'
-  bgmInstrument: 'strings',
-
   // 폭죽에 섞이는 이모지
   emojis: ['🎉','🎊','💍','💕','🥳','🌹','🍾','💖','✨','👰','🤵'],
 };
@@ -880,126 +880,6 @@ const Sound = (() => {
       env(ng, t, 0.5, 0.004, 0.42);
       n.connect(nf).connect(ng).connect(out);
       n.start(t); n.stop(t + 0.5);
-    },
-  };
-})();
-
-/* ── 배경음: 파헬벨 카논 (1680년대, 퍼블릭 도메인) ── */
-const BGM = (() => {
-  const BPM = 76, BEAT = 60 / BPM;
-  const STEP = BEAT * 2;               // 화음 하나당 2박
-
-  // 카논 진행: D - A - Bm - F#m - G - D - G - A
-  const PROG = [
-    { bass: 50, notes: [62, 66, 69] },  // D   : D  F# A
-    { bass: 45, notes: [61, 64, 69] },  // A   : C# E  A
-    { bass: 47, notes: [62, 66, 71] },  // Bm  : D  F# B
-    { bass: 42, notes: [61, 66, 69] },  // F#m : C# F# A
-    { bass: 43, notes: [62, 67, 71] },  // G   : D  G  B
-    { bass: 38, notes: [62, 66, 69] },  // D   : D  F# A
-    { bass: 43, notes: [59, 62, 67] },  // G   : B  D  G
-    { bass: 45, notes: [61, 64, 69] },  // A   : C# E  A
-  ];
-  const ARP = [0, 1, 2, 1];            // 화음마다 8분음표 4개
-
-  const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
-
-  let bus = null, timer = null, step = 0, nextAt = 0;
-
-  // 피아노 근사: [배음, 세기, 감쇠배율]. 높은 배음이 먼저 사라지는 게 피아노의 특징
-  const PARTIALS = [
-    [1, 1.00, 1.00],
-    [2, 0.42, 0.68],
-    [3, 0.21, 0.48],
-    [4, 0.11, 0.36],
-    [5, 0.06, 0.28],
-  ];
-
-  /** 건반 하나를 누른 소리 (가산 합성) */
-  function note(ctx, freq, t, peak, decay) {
-    for (const [n, amp, dk] of PARTIALS) {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = freq * n * (1 + 0.0004 * n * n);   // 실제 현의 불협화 근사
-      const d = decay * dk;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(peak * amp, t + 0.005);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-      o.connect(g).connect(bus);
-      o.start(t); o.stop(t + d + 0.02);
-    }
-  }
-
-  /** 활로 긋는 소리. 디튠한 사와투스 여러 개를 겹쳐 합주처럼 만든다 */
-  function bow(ctx, freq, t, dur, peak, bright) {
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = bright; lp.Q.value = 0.6;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(peak, t + 0.18);                // 느린 활 어택
-    g.gain.setValueAtTime(peak, t + Math.max(0.2, dur - 0.18));
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    lp.connect(g).connect(bus);
-
-    const lfo = ctx.createOscillator(), lfoAmt = ctx.createGain();      // 비브라토
-    lfo.frequency.value = 5.2;
-    lfoAmt.gain.value = freq * 0.004;
-    lfo.connect(lfoAmt);
-    lfo.start(t); lfo.stop(t + dur + 0.05);
-
-    for (const cents of [-7, 6]) {                                      // 두 사람이 함께 켜는 느낌
-      const o = ctx.createOscillator();
-      o.type = 'sawtooth';
-      o.frequency.value = freq;
-      o.detune.value = cents;
-      lfoAmt.connect(o.detune);
-      o.connect(lp);
-      o.start(t); o.stop(t + dur + 0.05);
-    }
-  }
-
-  function scheduleStep(ctx, i, t) {
-    const ch = PROG[i % PROG.length];
-
-    if (CONFIG.bgmInstrument === 'piano') {
-      note(ctx, hz(ch.bass), t, 0.34, 2.8);                             // 왼손 저음
-      for (let k = 0; k < ARP.length; k++) {                             // 오른손 아르페지오
-        note(ctx, hz(ch.notes[ARP[k]]), t + k * BEAT / 2, 0.2, 1.7);
-      }
-      return;
-    }
-
-    const LEGATO = 0.16;                                                 // 다음 화음과 겹치는 시간
-    bow(ctx, hz(ch.bass), t, STEP + LEGATO, 0.15, 1400);                 // 첼로
-    ch.notes.forEach((n, k) => {                                         // 바이올린 화음
-      bow(ctx, hz(n), t + k * 0.03, STEP + LEGATO - k * 0.03, 0.085, 2600);  // 입장을 살짝 엇갈리게
-    });
-    bow(ctx, hz(ch.notes[2] + 12), t, BEAT, 0.06, 3200);                 // 위 성부 움직임
-    bow(ctx, hz(ch.notes[1] + 12), t + BEAT, BEAT, 0.06, 3200);
-  }
-
-  function tick() {
-    const ctx = AudioBus.ready(); if (!ctx) return;
-    while (nextAt < ctx.currentTime + 1) {        // 1초 앞까지 미리 예약
-      scheduleStep(ctx, step++, nextAt);
-      nextAt += STEP;
-    }
-  }
-
-  return {
-    get playing() { return timer !== null; },
-    start() {
-      const ctx = AudioBus.ready(); if (!ctx || timer) return;
-      // 과한 고역만 다듬는다 (배음을 깎으면 피아노다움이 사라짐)
-      const lp = ctx.createBiquadFilter();
-      lp.type = 'lowpass'; lp.frequency.value = 5000; lp.Q.value = 0.7;
-      bus = ctx.createGain();
-      bus.gain.value = 0.8;                       // 오프라인 렌더링으로 맞춘 값 (RMS -27dBFS)
-      bus.connect(lp).connect(AudioBus.out());
-      step = 0;
-      nextAt = ctx.currentTime + 0.15;
-      tick();
-      timer = setInterval(tick, 250);
     },
   };
 })();
@@ -1222,7 +1102,7 @@ function blowUp(first) {
   celebrating = true;
 
   Sound.boom();
-  BGM.start();                                    // 사용자 조작 시점이라 자동재생 정책에 걸리지 않음
+  playBgm();                                      // 사용자 조작 시점이라 자동재생 정책에 걸리지 않음
 
   const cx = W / 2, cy = H * 0.52;
   burst(cx, cy, 150);
@@ -1237,9 +1117,21 @@ $('screen').addEventListener('pointerdown', (e) => {
   pop(e.clientX - r.left, e.clientY - r.top);
 });
 
+/* ── 배경음 ─────────────────────────────────────── */
+const bgmEl = $('bgm');
+bgmEl.volume = 0.35;
+
+/** 파일이 없거나 브라우저가 막으면 조용히 넘어간다 */
+function playBgm() {
+  if (!AudioBus.on) return;
+  bgmEl.play().catch(() => {});
+}
+
 const muteBtn = $('mute');
 muteBtn.addEventListener('click', () => {
   AudioBus.on = !AudioBus.on;
+  bgmEl.muted = !AudioBus.on;
+  if (AudioBus.on && celebrating) playBgm();
   muteBtn.textContent = AudioBus.on ? '🔊' : '🔇';
   muteBtn.setAttribute('aria-pressed', String(!AudioBus.on));
   muteBtn.setAttribute('aria-label', AudioBus.on ? '소리 끄기' : '소리 켜기');
