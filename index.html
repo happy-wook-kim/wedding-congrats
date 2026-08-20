@@ -106,6 +106,14 @@ body{
 @keyframes blink{50%{opacity:.15}}
 .hud-label{color:var(--volt);font-weight:700}
 .hud-clock{margin-left:auto;color:rgba(255,249,240,.72);font-variant-numeric:tabular-nums}
+.hud-mute{
+  flex:none;padding:.3em .45em;
+  background:transparent;border:1px solid var(--line);border-radius:2px;
+  color:var(--cream);cursor:pointer;line-height:1;
+  font-size:clamp(11px,2.8vw,13px);
+}
+.hud-mute:hover{border-color:var(--volt)}
+.hud-mute:focus-visible{outline:2px solid var(--volt);outline-offset:2px}
 
 /* ── 무대 ───────────────────────────────────────── */
 .stage{
@@ -536,6 +544,7 @@ body{
     <span class="live"><i></i>LIVE</span>
     <span class="hud-label" id="hudLabel">단독 입수</span>
     <span class="hud-clock" id="clock">--:--:--</span>
+    <button class="hud-mute" id="mute" aria-pressed="false" aria-label="효과음 끄기">🔊</button>
   </header>
 
   <main class="stage">
@@ -804,6 +813,85 @@ setInterval(tickClock, 1000);
   }, { passive: true });
 })();
 
+/* ── 효과음 (Web Audio 합성, 음원 파일 없음) ─────── */
+const Sound = (() => {
+  let ctx = null, master = null, on = true;
+
+  function ensure() {
+    if (ctx) return ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+    return ctx;
+  }
+  function ready() {
+    if (!on || !ensure()) return false;
+    if (ctx.state === 'suspended') ctx.resume();
+    return true;
+  }
+  /** 짧은 화이트노이즈 버퍼 */
+  function noise(dur) {
+    const len = Math.floor(ctx.sampleRate * dur);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+  /** 어택-디케이 엔벨로프 */
+  function env(node, t, peak, attack, decay) {
+    const g = node.gain;
+    g.setValueAtTime(0.0001, t);
+    g.exponentialRampToValueAtTime(peak, t + attack);
+    g.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+  }
+
+  return {
+    get on() { return on; },
+    set on(v) { on = v; if (master) master.gain.value = v ? 0.5 : 0; },
+
+    /** 폭죽 터지는 소리: 저역 충격 + 파열 노이즈 */
+    boom() {
+      if (!ready()) return;
+      const t = ctx.currentTime;
+
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(160, t);
+      o.frequency.exponentialRampToValueAtTime(38, t + 0.28);
+      env(og, t, 0.9, 0.005, 0.3);
+      o.connect(og).connect(master);
+      o.start(t); o.stop(t + 0.4);
+
+      const n = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain();
+      n.buffer = noise(0.5);
+      nf.type = 'bandpass';
+      nf.frequency.setValueAtTime(1800, t);
+      nf.frequency.exponentialRampToValueAtTime(400, t + 0.4);
+      nf.Q.value = 0.8;
+      env(ng, t, 0.5, 0.004, 0.42);
+      n.connect(nf).connect(ng).connect(master);
+      n.start(t); n.stop(t + 0.5);
+    },
+
+    /** 클릭할 때 톡 튀는 소리 */
+    pop() {
+      if (!ready()) return;
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'triangle';
+      const base = 520 + Math.random() * 480;   // 클릭마다 음높이를 흩어 단조로움 방지
+      o.frequency.setValueAtTime(base, t);
+      o.frequency.exponentialRampToValueAtTime(base * 2.2, t + 0.06);
+      env(g, t, 0.3, 0.004, 0.09);
+      o.connect(g).connect(master);
+      o.start(t); o.stop(t + 0.15);
+    },
+  };
+})();
+
 /* ── 파티클 엔진 ────────────────────────────────── */
 const cvs = $('fx');
 const ctx = cvs.getContext('2d');
@@ -1021,6 +1109,8 @@ function blowUp(first) {
   renderShow();
   celebrating = true;
 
+  Sound.boom();
+
   const cx = W / 2, cy = H * 0.52;
   burst(cx, cy, 150);
   setTimeout(() => burst(W * 0.16, H * 0.72, 110), 220);
@@ -1030,8 +1120,18 @@ function blowUp(first) {
 
 $('screen').addEventListener('pointerdown', (e) => {
   if (!celebrating) return;                       // 진입 화면에서는 김 빠지므로 제외
+  if (e.target.closest('#mute')) return;          // 음소거 누를 때 소리 나면 어색함
   const r = cvs.getBoundingClientRect();          // 캔버스 기준 좌표로 변환
   pop(e.clientX - r.left, e.clientY - r.top);
+  Sound.pop();
+});
+
+const muteBtn = $('mute');
+muteBtn.addEventListener('click', () => {
+  Sound.on = !Sound.on;
+  muteBtn.textContent = Sound.on ? '🔊' : '🔇';
+  muteBtn.setAttribute('aria-pressed', String(!Sound.on));
+  muteBtn.setAttribute('aria-label', Sound.on ? '효과음 끄기' : '효과음 켜기');
 });
 
 $('boom').addEventListener('click', () => blowUp(true));
