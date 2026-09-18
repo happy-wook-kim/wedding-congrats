@@ -514,20 +514,21 @@ body{
   color:var(--paper-mute);
 }
 .gift-who b{color:var(--paper-ink);font-weight:600}
+/* 줄 전체가 복사 버튼이다. 계좌번호를 누르는 게 제일 자연스럽다. */
 .gift-acct{
-  display:flex;align-items:center;gap:.5em;
+  display:flex;align-items:center;gap:.5em;width:100%;
+  border:0;background:none;padding:.15em 0;text-align:left;cursor:pointer;
   font-family:var(--mono);font-size:clamp(.85rem,3.3vw,.95rem);
   color:var(--paper-soft);letter-spacing:.02em;
+  transition:color .15s;
 }
+.gift-acct:hover,.gift-acct:active{color:var(--paper-ink)}
 .gift-acct .num{flex:1 1 auto;min-width:0}
-/* 계좌번호 옆 복사 아이콘 — 손가락으로 누를 수 있게 28px 는 확보한다 */
-.copy-btn{
-  flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;
-  border:1px solid var(--paper-rule);border-radius:7px;background:#fff;
-  color:var(--paper-mute);cursor:pointer;padding:0;
-}
-.copy-btn:active{background:var(--paper)}
-.copy-btn svg{width:13px;height:13px;display:block}
+/* 계좌번호 옆 복사 아이콘. 테두리나 배경 없이 아이콘만 두되,
+   손가락으로 누를 수 있게 28px 는 확보한다 */
+.copy-ico{flex:0 0 auto;display:grid;place-items:center;width:22px;height:22px}
+.copy-ico svg{width:15px;height:15px;display:block}
+.gift-acct:active .copy-ico{transform:scale(.88)}
 .gift-btns{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.15rem}
 .gift-btns a{
   font-family:"IBM Plex Sans KR",sans-serif;font-size:clamp(.74rem,2.9vw,.8rem);
@@ -676,7 +677,7 @@ body{
     <div class="rule"></div>
 
     <div class="hosts">
-      <span class="parent">이한림</span><span class="rel">의 아들</span><span class="who">이몽룡</span>
+      <span class="parent">이한림 · 정부인</span><span class="rel">의 아들</span><span class="who">이몽룡</span>
       <span class="parent">성진사 · 월매</span><span class="rel">의 장녀</span><span class="who">성춘향</span>
     </div>
 
@@ -802,7 +803,7 @@ body{
         <div class="gift-body">
           <div class="gift-row">
             <p class="gift-who">신랑 <b>이몽룡</b></p>
-            <p class="gift-acct"><span class="num">국민 000000-00-000000</span><button type="button" class="copy-btn" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
+            <button type="button" class="gift-acct" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><span class="num">국민 000000-00-000000</span><span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
             <div class="gift-btns">
               <!-- 카카오페이 송금: 앱 > 송금 > 내 송금코드 에서 받은 https://qr.kakaopay.com/... 를 href 에 넣는다 -->
               <a class="pay" href="" data-pay hidden>카카오페이</a>
@@ -810,7 +811,13 @@ body{
           </div>
           <div class="gift-row">
             <p class="gift-who">아버지 <b>이한림</b></p>
-            <p class="gift-acct"><span class="num">국민 000000-00-000000</span><button type="button" class="copy-btn" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
+            <button type="button" class="gift-acct" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><span class="num">국민 000000-00-000000</span><span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
+            <div class="gift-btns">
+              <a class="pay" href="" data-pay hidden>카카오페이</a>
+            </div>
+          <div class="gift-row">
+            <p class="gift-who">어머니 <b>정부인</b></p>
+            <button type="button" class="gift-acct" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><span class="num">국민 000000-00-000000</span><span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
             <div class="gift-btns">
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
@@ -823,21 +830,21 @@ body{
         <div class="gift-body">
           <div class="gift-row">
             <p class="gift-who">신부 <b>성춘향</b></p>
-            <p class="gift-acct"><span class="num">신한 000-000-000000</span><button type="button" class="copy-btn" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
+            <button type="button" class="gift-acct" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><span class="num">신한 000-000-000000</span><span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
             <div class="gift-btns">
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
           <div class="gift-row">
             <p class="gift-who">아버지 <b>성진사</b></p>
-            <p class="gift-acct"><span class="num">신한 000-000-000000</span><button type="button" class="copy-btn" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
+            <button type="button" class="gift-acct" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><span class="num">신한 000-000-000000</span><span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
             <div class="gift-btns">
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
           <div class="gift-row">
             <p class="gift-who">어머니 <b>월매</b></p>
-            <p class="gift-acct"><span class="num">신한 000-000-000000</span><button type="button" class="copy-btn" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
+            <button type="button" class="gift-acct" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><span class="num">신한 000-000-000000</span><span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
             <div class="gift-btns">
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
