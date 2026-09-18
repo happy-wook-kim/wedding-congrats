@@ -515,11 +515,21 @@ body{
 }
 .gift-who b{color:var(--paper-ink);font-weight:600}
 .gift-acct{
+  display:flex;align-items:center;gap:.5em;
   font-family:var(--mono);font-size:clamp(.85rem,3.3vw,.95rem);
   color:var(--paper-soft);letter-spacing:.02em;
 }
+.gift-acct .num{flex:1 1 auto;min-width:0}
+/* 계좌번호 옆 복사 아이콘 — 손가락으로 누를 수 있게 28px 는 확보한다 */
+.copy-btn{
+  flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;
+  border:1px solid var(--paper-rule);border-radius:7px;background:#fff;
+  color:var(--paper-mute);cursor:pointer;padding:0;
+}
+.copy-btn:active{background:var(--paper)}
+.copy-btn svg{width:13px;height:13px;display:block}
 .gift-btns{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.15rem}
-.gift-btns button,.gift-btns a{
+.gift-btns a{
   font-family:"IBM Plex Sans KR",sans-serif;font-size:clamp(.74rem,2.9vw,.8rem);
   padding:.5em 1em;border-radius:999px;border:1px solid var(--paper-rule);
   background:#fff;color:var(--paper-soft);cursor:pointer;text-decoration:none;
@@ -649,7 +659,7 @@ body{
   <div class="card-inner">
 
     <img class="hero" src="photos/hero.jpg" width="1500" height="1000" loading="lazy" decoding="async"
-         alt="베일 아래에서 마주 보고 웃는 신랑 신부">
+         alt="신윤복 월하정인 — 달빛 아래 마주 선 두 사람">
 
     <p class="cover-date">9/27</p>
     <p class="cover-names">Mongryong Lee &nbsp;+&nbsp; Chunhyang Sung</p>
@@ -680,11 +690,11 @@ body{
     <div class="rule"></div>
 
     <div class="gallery">
-      <img src="photos/p1.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="팔짱을 끼고 나란히 선 신랑 신부">
-      <img src="photos/p2.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="온실 창가에 선 신부">
-      <img src="photos/p4.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="서로를 안고 웃는 신랑 신부">
-      <img src="photos/p5.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="검정 예복을 입고 선 신랑 신부">
-      <img class="wide" src="photos/p3.jpg" width="1620" height="1080" loading="lazy" decoding="async" alt="드레스를 펼치고 앉아 웃는 신부">
+      <img src="photos/p1.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="김홍도 신행 — 혼례 행렬">
+      <img src="photos/p2.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="민화 모란도 — 부귀를 비는 그림">
+      <img src="photos/p4.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="민화 화조도 — 꽃과 새 한 쌍">
+      <img src="photos/p5.jpg" width="1080" height="1620" loading="lazy" decoding="async" alt="신윤복 연소답청 — 봄나들이">
+      <img class="wide" src="photos/p3.jpg" width="1620" height="1080" loading="lazy" decoding="async" alt="신윤복 연소답청 — 봄나들이 행렬">
     </div>
 
     <div class="rule"></div>
@@ -793,18 +803,16 @@ body{
         <div class="gift-body">
           <div class="gift-row">
             <p class="gift-who">신랑 <b>이몽룡</b></p>
-            <p class="gift-acct">국민 000000-00-000000</p>
+            <p class="gift-acct"><span class="num">국민 000000-00-000000</span><button type="button" class="copy-btn" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
             <div class="gift-btns">
-              <button type="button" data-copy="국민 000000-00-000000">계좌 복사</button>
               <!-- 카카오페이 송금: 앱 > 송금 > 내 송금코드 에서 받은 https://qr.kakaopay.com/... 를 href 에 넣는다 -->
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
           <div class="gift-row">
             <p class="gift-who">아버지 <b>이한림</b></p>
-            <p class="gift-acct">국민 000000-00-000000</p>
+            <p class="gift-acct"><span class="num">국민 000000-00-000000</span><button type="button" class="copy-btn" data-copy="국민 000000-00-000000" aria-label="국민 000000-00-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
             <div class="gift-btns">
-              <button type="button" data-copy="국민 000000-00-000000">계좌 복사</button>
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
@@ -816,25 +824,22 @@ body{
         <div class="gift-body">
           <div class="gift-row">
             <p class="gift-who">신부 <b>성춘향</b></p>
-            <p class="gift-acct">신한 000-000-000000</p>
+            <p class="gift-acct"><span class="num">신한 000-000-000000</span><button type="button" class="copy-btn" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
             <div class="gift-btns">
-              <button type="button" data-copy="신한 000-000-000000">계좌 복사</button>
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
           <div class="gift-row">
             <p class="gift-who">아버지 <b>성진사</b></p>
-            <p class="gift-acct">신한 000-000-000000</p>
+            <p class="gift-acct"><span class="num">신한 000-000-000000</span><button type="button" class="copy-btn" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
             <div class="gift-btns">
-              <button type="button" data-copy="신한 000-000-000000">계좌 복사</button>
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
           <div class="gift-row">
             <p class="gift-who">어머니 <b>월매</b></p>
-            <p class="gift-acct">신한 000-000-000000</p>
+            <p class="gift-acct"><span class="num">신한 000-000-000000</span><button type="button" class="copy-btn" data-copy="신한 000-000-000000" aria-label="신한 000-000-000000 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></p>
             <div class="gift-btns">
-              <button type="button" data-copy="신한 000-000-000000">계좌 복사</button>
               <a class="pay" href="" data-pay hidden>카카오페이</a>
             </div>
           </div>
@@ -845,6 +850,9 @@ body{
     <p class="note">* 전용 주차장 지하 4층 (무료 주차 가능)</p>
 
     <p class="credit">
+      그림 · 신윤복 「월하정인」 「연소답청」, 김홍도 「신행」, 조선 민화 「모란도」 「화조도」 —
+      <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>,
+      퍼블릭 도메인<br>
       배경음 · 파헬벨 카논 —
       <a href="https://archive.org/details/PachelbelsCanoninD" target="_blank" rel="noopener">Internet Archive</a>,
       퍼블릭 도메인
